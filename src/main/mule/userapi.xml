@@ -50,6 +50,7 @@ http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/sc
 			<ee:variables >
 			</ee:variables>
 		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="a48f9958-6f68-4c8c-afec-de0a20a549d8" message="#[payload]"/>
 		<logger level="INFO" doc:name="Logger" doc:id="3c1c5ec5-3363-48b0-86cf-8211c993b950" message="${secure::test.check}"/>
 	</flow>
 </mule>
