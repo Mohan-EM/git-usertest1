@@ -1,0 +1,13 @@
+http:
+  listener:
+    port: "8081"
+    path: "/users/{id}"
+
+httpReuest:
+  host: "reqres.in"
+  port: "443"
+  basepath: "/api"
+  path: "/users/{id}"
+        
+test:
+  check:  "![q9UW7cOHSHpktAKzSgJuqg==]"         

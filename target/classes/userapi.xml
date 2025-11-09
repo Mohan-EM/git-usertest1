@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e21be00d-f36c-432b-9c1f-8640944e7fc6" >
+		<http:listener-connection host="0.0.0.0" port="${http.listener.port}" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="bd9ce750-690b-4422-8964-279b609a1326" basePath="${secure::httpReuest.basepath}" >
+		<http:request-connection host="${secure::httpReuest.host}" port="${secure::httpReuest.port}" protocol="HTTPS"/>
+	</http:request-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="c74afa40-6045-48a6-9f64-fd015cab1108" file="mule-env-${mule.env}.yaml" />
+	<global-property doc:name="Global Property" doc:id="fa0a770e-7eb9-4afe-9e9b-6f0ece64455d" name="mule.env" value="prod" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="331ee540-d382-4360-9373-c51d6b3cbcd9" file="mule-env-${mule.env}.yaml" key="${secure.key}" />
+	<global-property doc:name="Global Property" doc:id="21a9248b-a8ad-4b43-bfad-9c5ee0fe2fb0" name="secure.key" value="Password12345678" />
+	<flow name="userapiFlow" doc:id="3956878a-4551-4bc4-829e-f9058c44e24d" >
+		<http:listener doc:name="Listener" doc:id="8cc20fb4-7d7e-45ff-8396-bb4a5edf5026" config-ref="HTTP_Listener_config" path="${http.listener.path}"/>
+		<ee:transform doc:name="Transform Message" doc:id="1ca4d01c-dbf1-44ed-bd09-fe7569b35337" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="id" ><![CDATA[attributes.uriParams.'id']]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="15bd6df2-2521-44f4-b568-08956d86ff13" message="#[vars.id]" />
+		<http:request method="GET" doc:name="Request" doc:id="882e6377-9867-4b95-bf90-4da01d5be532" config-ref="HTTP_Request_configuration" path="${httpReuest.path}">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"x-api-key" : "reqres-free-v1"
+}]]]></http:headers>
+			<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : vars.id
+}]]]></http:uri-params>
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"Key" : "Value"
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="063ac348-07cb-4952-98cc-26aa2e2d429e" >
+			<ee:message >
+				<ee:set-payload resource="dataweave/userScripts.dwl" />
+			</ee:message>
+			<ee:variables >
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="3c1c5ec5-3363-48b0-86cf-8211c993b950" message="${secure::test.check}"/>
+	</flow>
+</mule>
